@@ -33,21 +33,25 @@ namespace WeHackSecrets
 
             services.AddTransient<IHttpClientProxy, HttpClientProxy>();
 
-            services.AddSingleton<IEnumerable<IExploit>>(x =>
+            services.AddSingleton<IEnumerable<IExploitRunner>>(x =>
             {
                 // Each Exploit should have a shared HttpClientProxy - that way they maintain cookies
+                // As more exploits are added, this whole section should be passed out to a factory
                 var sharedHttpClient = x.GetRequiredService<IHttpClientProxy>();
 
-                return new IExploit[]
+                return new IExploitRunner[]
                 {
-                    new SqlInjectionCopySecretOnSecretSave(hackerUser,
-                                                           targetUser,
-                                                           targetKey,
-                                                           new LoginAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
-                                                           new CreateSecretAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
-                                                           new SecretsList(sharedHttpClient))
+                    new ExploitRunner(1,
+                                        new SqlInjectionCopySecretOnSecretSave(hackerUser,
+                                                                               targetUser,
+                                                                               targetKey,
+                                                                               new LoginAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
+                                                                               new CreateSecretAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
+                                                                               new SecretsList(sharedHttpClient)))
                 };
             });
+
+            services.AddSingleton<IExploitsOrchestrator, ExploitsOrchestrator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
