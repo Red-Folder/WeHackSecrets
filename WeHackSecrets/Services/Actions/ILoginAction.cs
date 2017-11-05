@@ -1,7 +1,10 @@
-﻿namespace WeHackSecrets.Services.Actions
+﻿using System.Threading.Tasks;
+
+namespace WeHackSecrets.Services.Actions
 {
     public interface ILoginAction
     {
-        void Login(string user, string password);
+        Task LoginAsync(string user, string password);
+        bool Successful { get; }
     }
 }

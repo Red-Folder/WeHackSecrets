@@ -65,7 +65,7 @@ namespace WeHackSecrets.Services
         public void Exploit()
         {
             // Login as the hacker
-            _loginAction.Login(_hackerUser, _hackerPassword);
+            _loginAction.LoginAsync(_hackerUser, _hackerPassword).Wait();
 
             // Run the exploit againts the secrets page
             _createSecretAction.Create("HackerKey", ExploitString);

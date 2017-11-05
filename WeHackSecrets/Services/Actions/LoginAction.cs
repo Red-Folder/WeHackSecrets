@@ -13,6 +13,8 @@ namespace WeHackSecrets.Services.Actions
         private readonly IAntiForgeryAction _antiForgeryAction;
         private readonly string _relativePath = "Account/Login";
 
+        private bool _successful = false;
+
         public LoginAction(IHttpClientProxy client, IAntiForgeryAction antiForgeryAction)
         {
             if (client == null) throw new ArgumentNullException("client");
@@ -22,7 +24,15 @@ namespace WeHackSecrets.Services.Actions
             _antiForgeryAction = antiForgeryAction;
         }
 
-        public void Login(string user, string password)
+        public bool Successful
+        {
+            get
+            {
+                return _successful;
+            }
+        }
+
+        public async Task LoginAsync(string user, string password)
         {
             var antiForgeryToken = _antiForgeryAction.GetToken(_relativePath);
 
@@ -46,7 +56,15 @@ namespace WeHackSecrets.Services.Actions
                 //Cookies = antiForgeryResponse.Cookies
             };
 
-            var loginResponse = _client.SendAsync(loginRequest).Result;
+            var loginResponse = await _client.SendAsync(loginRequest);
+
+            if (loginResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                if (!loginResponse.Contents.Contains("Invalid login attempt."))
+                {
+                    _successful = true;
+                }
+            }
         }
     }
 }

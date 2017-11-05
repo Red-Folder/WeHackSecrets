@@ -35,20 +35,8 @@ namespace WeHackSecrets
 
             services.AddSingleton<IEnumerable<IExploitRunner>>(x =>
             {
-                // Each Exploit should have a shared HttpClientProxy - that way they maintain cookies
-                // As more exploits are added, this whole section should be passed out to a factory
-                var sharedHttpClient = x.GetRequiredService<IHttpClientProxy>();
-
-                return new IExploitRunner[]
-                {
-                    new ExploitRunner(1,
-                                        new SqlInjectionCopySecretOnSecretSave(hackerUser,
-                                                                               targetUser,
-                                                                               targetKey,
-                                                                               new LoginAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
-                                                                               new CreateSecretAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
-                                                                               new SecretsList(sharedHttpClient)))
-                };
+                var factory = new ExploitFactory(x, hackerUser, targetUser, targetKey);
+                return factory.GetExploits();
             });
 
             services.AddSingleton<IExploitsOrchestrator, ExploitsOrchestrator>();
