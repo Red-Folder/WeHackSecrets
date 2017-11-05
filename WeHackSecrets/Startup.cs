@@ -33,16 +33,20 @@ namespace WeHackSecrets
 
             services.AddTransient<IHttpClientProxy, HttpClientProxy>();
 
-            services.AddTransient<IExploit>(x =>
+            services.AddSingleton<IEnumerable<IExploit>>(x =>
             {
+                // Each Exploit should have a shared HttpClientProxy - that way they maintain cookies
                 var sharedHttpClient = x.GetRequiredService<IHttpClientProxy>();
 
-                return new SqlInjectionCopySecretOnSecretSave(hackerUser,
-                                                                targetUser,
-                                                                targetKey,
-                                                                new LoginAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
-                                                                new CreateSecretAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
-                                                                new SecretsList(sharedHttpClient));
+                return new IExploit[]
+                {
+                    new SqlInjectionCopySecretOnSecretSave(hackerUser,
+                                                           targetUser,
+                                                           targetKey,
+                                                           new LoginAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
+                                                           new CreateSecretAction(sharedHttpClient, new AntiForgeryAction(sharedHttpClient)),
+                                                           new SecretsList(sharedHttpClient))
+                };
             });
         }
 

@@ -43,7 +43,7 @@ namespace WeHackSecrets.Services
             _secretsList = secretsList;
         }
 
-        public void Exploit()
+        public Exploit Exploit()
         {
             // Login as the hacker
             _loginAction.Login(_hackerUser, _hackerPassword);
@@ -53,6 +53,24 @@ namespace WeHackSecrets.Services
 
             // Harvest the targets secret from the secrets page
             var secretValue = _secretsList.GetTargetSecret(_targetKey);
+
+            if (string.IsNullOrEmpty(secretValue))
+            {
+                return new Models.Exploit
+                {
+                    Id = 1,
+                    Exploited = ExploitStatus.Failed
+                };
+            }
+            else
+            {
+                return new Models.Exploit
+                {
+                    Id = 1,
+                    Exploited = ExploitStatus.Successful,
+                    Value = secretValue
+                };
+            }
         }
 
         private string ExploitString
