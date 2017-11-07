@@ -21,6 +21,8 @@ namespace WeHackSecrets.Services.Actions
 
         public string GetToken(string relativePath)
         {
+            if (relativePath == null) throw new ArgumentNullException("relativePath");
+
             // Get the anti-forgery token for login
             var antiForgeryRequest = new HttpClientProxyRequest
             {

@@ -24,6 +24,9 @@ namespace WeHackSecrets.Services.Actions
 
         public void Create(string key, string value)
         {
+            if (key == null) throw new ArgumentNullException("key");
+            if (value == null) throw new ArgumentNullException("value");
+
             var antiForgeryToken = _antiForgeryAction.GetToken(_relativePath);
 
             var values = new List<KeyValuePair<string, string>>
