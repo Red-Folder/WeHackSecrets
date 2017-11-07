@@ -34,6 +34,9 @@ namespace WeHackSecrets.Services.Actions
 
         public async Task LoginAsync(string user, string password)
         {
+            if (user == null) throw new ArgumentNullException("user");
+            if (password == null) throw new ArgumentNullException("password");
+
             var antiForgeryToken = _antiForgeryAction.GetToken(_relativePath);
 
             var values = new List<KeyValuePair<string, string>>

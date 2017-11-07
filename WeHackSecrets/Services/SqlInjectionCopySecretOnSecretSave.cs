@@ -36,7 +36,7 @@ namespace WeHackSecrets.Services
             if (targetKey == null) throw new ArgumentNullException("targetKey");
             if (loginAction == null) throw new ArgumentNullException("loginAction");
             if (createSecretAction == null) throw new ArgumentNullException("createSecretAction");
-            if (secretsList == null) throw new ArgumentException("secretsList");
+            if (secretsList == null) throw new ArgumentNullException("secretsList");
 
             _hackerUser = hackerUser;
             _targetUser = targetUser;
