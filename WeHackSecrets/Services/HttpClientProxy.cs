@@ -22,7 +22,7 @@ namespace WeHackSecrets.Services
 
             _client = new HttpClient(handler);
 
-            _client.BaseAddress = new Uri("https://localhost:44353/");
+            _client.BaseAddress = new Uri("http://localhost:44353/");
         }
 
         public async Task<HttpClientProxyResponse> SendAsync(HttpClientProxyRequest proxyRequest)
