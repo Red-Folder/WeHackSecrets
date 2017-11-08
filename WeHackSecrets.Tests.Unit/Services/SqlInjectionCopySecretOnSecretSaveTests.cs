@@ -121,6 +121,75 @@ namespace WeHackSecrets.Tests.Unit.Services
         }
 
 
-        // TODO - handle failure & exceptions
+        [Fact]
+        public void FailedExploit()
+        {
+            var login = new Mock<ILoginAction>();
+            login.Setup(x => x.LoginAsync("HackerUser", "Test1234!")).Returns(Task.CompletedTask);
+            var createSecret = new Mock<ICreateSecretAction>();
+            createSecret.Setup(x => x.Create("HackerKey", It.IsAny<string>()));
+            var secretsList = new Mock<ISecretsList>();
+            secretsList.Setup(x => x.GetTargetSecret("TargetKey")).Returns("");
+
+            var sut = new SqlInjectionCopySecretOnSecretSave("HackerUser", "TargetUser", "TargetKey", login.Object, createSecret.Object, secretsList.Object);
+
+            sut.Exploit();
+            login.VerifyAll();
+            createSecret.VerifyAll();
+            secretsList.VerifyAll();
+            Assert.False(sut.Successful);
+            Assert.Empty(sut.SecretValue);
+        }
+
+        [Fact]
+        public void ExceptionDuringLogin()
+        {
+            var login = new Mock<ILoginAction>();
+            login.Setup(x => x.LoginAsync("HackerUser", "Test1234!")).Returns(() => throw new Exception("End of the world"));
+            var createSecret = new Mock<ICreateSecretAction>();
+            var secretsList = new Mock<ISecretsList>();
+
+            var sut = new SqlInjectionCopySecretOnSecretSave("HackerUser", "TargetUser", "TargetKey", login.Object, createSecret.Object, secretsList.Object);
+
+            sut.Exploit();
+
+            Assert.False(sut.Successful);
+            Assert.Empty(sut.SecretValue);
+        }
+
+        [Fact]
+        public void ExceptionDuringCreateSecret()
+        {
+            var login = new Mock<ILoginAction>();
+            login.Setup(x => x.LoginAsync("HackerUser", "Test1234!")).Returns(Task.CompletedTask);
+            var createSecret = new Mock<ICreateSecretAction>();
+            createSecret.Setup(x => x.Create("HackerKey", It.IsAny<string>())).Callback(() => throw new Exception("End of the world"));
+            var secretsList = new Mock<ISecretsList>();
+
+            var sut = new SqlInjectionCopySecretOnSecretSave("HackerUser", "TargetUser", "TargetKey", login.Object, createSecret.Object, secretsList.Object);
+
+            sut.Exploit();
+
+            Assert.False(sut.Successful);
+            Assert.Empty(sut.SecretValue);
+        }
+
+        [Fact]
+        public void ExceptionDuringSecretList()
+        {
+            var login = new Mock<ILoginAction>();
+            login.Setup(x => x.LoginAsync("HackerUser", "Test1234!")).Returns(Task.CompletedTask);
+            var createSecret = new Mock<ICreateSecretAction>();
+            createSecret.Setup(x => x.Create("HackerKey", It.IsAny<string>()));
+            var secretsList = new Mock<ISecretsList>();
+            secretsList.Setup(x => x.GetTargetSecret("TargetKey")).Returns(() => throw new Exception("End of the world"));
+
+            var sut = new SqlInjectionCopySecretOnSecretSave("HackerUser", "TargetUser", "TargetKey", login.Object, createSecret.Object, secretsList.Object);
+
+            sut.Exploit();
+
+            Assert.False(sut.Successful);
+            Assert.Empty(sut.SecretValue);
+        }
     }
 }

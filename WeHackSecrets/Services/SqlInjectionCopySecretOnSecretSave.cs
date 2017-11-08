@@ -64,19 +64,27 @@ namespace WeHackSecrets.Services
 
         public void Exploit()
         {
-            // Login as the hacker
-            _loginAction.LoginAsync(_hackerUser, _hackerPassword).Wait();
-
-            // Run the exploit againts the secrets page
-            _createSecretAction.Create("HackerKey", ExploitString);
-
-            // Harvest the targets secret from the secrets page
-            var secretValue = _secretsList.GetTargetSecret(_targetKey);
-
-            if (!string.IsNullOrEmpty(secretValue))
+            try
             {
-                _successful = true;
-                _secretValue = secretValue;
+                // Login as the hacker
+                _loginAction.LoginAsync(_hackerUser, _hackerPassword).Wait();
+
+                // Run the exploit againts the secrets page
+                _createSecretAction.Create("HackerKey", ExploitString);
+
+                // Harvest the targets secret from the secrets page
+                var secretValue = _secretsList.GetTargetSecret(_targetKey);
+
+                if (!string.IsNullOrEmpty(secretValue))
+                {
+                    _successful = true;
+                    _secretValue = secretValue;
+                }
+            }
+            catch (Exception ex)
+            {
+                // No further action
+                // Exploit will have failed
             }
         }
 
